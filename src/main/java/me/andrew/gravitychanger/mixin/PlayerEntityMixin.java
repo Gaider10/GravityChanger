@@ -381,11 +381,9 @@ public abstract class PlayerEntityMixin extends LivingEntity implements EntityAc
                     ordinal = 0
             )
     )
-    private void redirect_tickMovement_expand_0(Args args) {
+    private void modify_tickMovement_expand_0(Args args) {
         Direction gravityDirection = ((EntityAccessor) this).gravitychanger$getAppliedGravityDirection();
-        if (gravityDirection == Direction.DOWN) {
-            return;
-        }
+        if(gravityDirection == Direction.DOWN) return;
 
         Vec3d vec3d = RotationUtil.maskPlayerToWorld(args.get(0), args.get(1), args.get(2), gravityDirection);
         args.set(0, vec3d.x);
@@ -401,11 +399,9 @@ public abstract class PlayerEntityMixin extends LivingEntity implements EntityAc
                     ordinal = 1
             )
     )
-    private void redirect_tickMovement_expand_1(Args args) {
+    private void modify_tickMovement_expand_1(Args args) {
         Direction gravityDirection = ((EntityAccessor) this).gravitychanger$getAppliedGravityDirection();
-        if (gravityDirection == Direction.DOWN) {
-            return;
-        }
+        if(gravityDirection == Direction.DOWN) return;
 
         Vec3d vec3d = RotationUtil.maskPlayerToWorld(args.get(0), args.get(1), args.get(2), gravityDirection);
         args.set(0, vec3d.x);
