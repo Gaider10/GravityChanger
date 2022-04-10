@@ -6,7 +6,6 @@ import me.andrew.gravitychanger.accessor.RotatableEntityAccessor;
 import me.andrew.gravitychanger.util.RotationUtil;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.ShapeContext;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityPose;
@@ -16,12 +15,11 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.tag.FluidTags;
-import net.minecraft.tag.Tag;
+import net.minecraft.tag.TagKey;
 import net.minecraft.util.math.*;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -29,10 +27,10 @@ import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
-import java.util.stream.Stream;
+import java.util.Set;
 
 @Mixin(Entity.class)
 public abstract class EntityMixin implements EntityAccessor {
@@ -64,9 +62,9 @@ public abstract class EntityMixin implements EntityAccessor {
 
     @Shadow protected boolean submergedInWater;
 
-    @Shadow public abstract boolean isSubmergedIn(Tag<Fluid> fluidTag);
+    @Shadow public abstract boolean isSubmergedIn(TagKey<Fluid> water);
 
-    @Shadow @Nullable protected Tag<Fluid> submergedFluidTag;
+    @Shadow protected Set<TagKey<Fluid>> submergedFluidTag;
 
     @Shadow public boolean noClip;
 
@@ -466,24 +464,14 @@ public abstract class EntityMixin implements EntityAccessor {
         ci.cancel();
 
         this.submergedInWater = this.isSubmergedIn(FluidTags.WATER);
-        this.submergedFluidTag = null;
+        this.submergedFluidTag.clear();
         Vec3d mouthPos = this.getEyePos().subtract(RotationUtil.vecPlayerToWorld(0.0D, 0.1111111119389534D, 0.0D, gravityDirection));
         BlockPos blockPos = new BlockPos(mouthPos);
         FluidState fluidState = this.world.getFluidState(blockPos);
-        Iterator<Tag<Fluid>> var6 = FluidTags.getTags().iterator();
-
-        Tag<Fluid> tag;
-        do {
-            if (!var6.hasNext()) {
-                return;
-            }
-
-            tag = var6.next();
-        } while(!fluidState.isIn(tag));
-
         Box box = new Box(blockPos.getX(), blockPos.getY(), blockPos.getZ(), blockPos.getX() + 1, blockPos.getY() + fluidState.getHeight(this.world, blockPos), blockPos.getZ() + 1);
         if (box.contains(mouthPos)) {
-            this.submergedFluidTag = tag;
+            Objects.requireNonNull(this.submergedFluidTag);
+            fluidState.streamTags().forEach(this.submergedFluidTag::add);
         }
     }
 
