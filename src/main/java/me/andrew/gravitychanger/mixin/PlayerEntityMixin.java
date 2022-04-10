@@ -222,7 +222,6 @@ public abstract class PlayerEntityMixin extends LivingEntity implements EntityAc
         if (!this.abilities.flying && (type == MovementType.SELF || type == MovementType.PLAYER) && this.clipAtLedge() && this.method_30263()) {
             double d = playerMovement.x;
             double e = playerMovement.z;
-            double var7 = 0.05D;
 
             while(d != 0.0D && this.world.isSpaceEmpty(this, this.getBoundingBox().offset(RotationUtil.vecPlayerToWorld(d, (double)(-this.stepHeight), 0.0D, gravityDirection)))) {
                 if (d < 0.05D && d >= -0.05D) {
